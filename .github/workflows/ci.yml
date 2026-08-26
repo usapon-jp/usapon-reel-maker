@@ -15,8 +15,8 @@ jobs:
     env:
       USAPON_REEL_DATA_DIR: .local-data-ci
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version: 24.14.0
           cache: npm
