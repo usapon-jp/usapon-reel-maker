@@ -1,0 +1,18 @@
+{
+  "name": "@usapon-reel/local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@usapon-reel/core": "*",
+    "better-sqlite3": "latest",
+    "ffmpeg-static": "latest",
+    "ffprobe-static": "latest",
+    "sharp": "latest"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "latest",
+    "@types/ffprobe-static": "^2.0.3"
+  }
+}

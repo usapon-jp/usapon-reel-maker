@@ -1,0 +1,23 @@
+{
+  "name": "@usapon-reel/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -H 127.0.0.1"
+  },
+  "dependencies": {
+    "@remotion/player": "latest",
+    "@usapon-reel/core": "*",
+    "@usapon-reel/local": "*",
+    "@usapon-reel/renderer": "*",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  }
+}

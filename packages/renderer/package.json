@@ -1,0 +1,19 @@
+{
+  "name": "@usapon-reel/renderer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/composition.tsx",
+    "./server": "./src/server.ts"
+  },
+  "dependencies": {
+    "@remotion/bundler": "latest",
+    "@remotion/player": "latest",
+    "@remotion/renderer": "latest",
+    "@usapon-reel/core": "*",
+    "react": "latest",
+    "react-dom": "latest",
+    "remotion": "latest"
+  }
+}

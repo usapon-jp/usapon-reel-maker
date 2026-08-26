@@ -1,0 +1,16 @@
+{
+  "name": "@usapon-reel/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx src/index.ts",
+    "start": "node --import tsx src/index.ts"
+  },
+  "dependencies": {
+    "@usapon-reel/core": "*",
+    "@usapon-reel/local": "*",
+    "@usapon-reel/renderer": "*",
+    "essentia.js": "latest"
+  }
+}
