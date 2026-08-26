@@ -1,6 +1,10 @@
 create extension if not exists pgcrypto;
 
-create table if not exists public.remote_reel_jobs (
+create schema if not exists reel;
+revoke all on schema reel from public;
+grant usage on schema reel to authenticated, service_role;
+
+create table if not exists reel.remote_reel_jobs (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   status text not null default 'queued' check (status in ('queued', 'processing', 'completed', 'failed')),
@@ -22,22 +26,26 @@ create table if not exists public.remote_reel_jobs (
 );
 
 create index if not exists remote_reel_jobs_user_created_idx
-  on public.remote_reel_jobs(user_id, created_at desc);
+  on reel.remote_reel_jobs(user_id, created_at desc);
 create index if not exists remote_reel_jobs_queue_idx
-  on public.remote_reel_jobs(status, created_at);
+  on reel.remote_reel_jobs(status, created_at);
 
-alter table public.remote_reel_jobs enable row level security;
+alter table reel.remote_reel_jobs enable row level security;
 
-drop policy if exists "Users can read their reel jobs" on public.remote_reel_jobs;
+revoke all on reel.remote_reel_jobs from anon, authenticated;
+grant select, insert, delete on reel.remote_reel_jobs to authenticated;
+grant select, insert, update, delete on reel.remote_reel_jobs to service_role;
+
+drop policy if exists "Users can read their reel jobs" on reel.remote_reel_jobs;
 create policy "Users can read their reel jobs"
-  on public.remote_reel_jobs
+  on reel.remote_reel_jobs
   for select
   to authenticated
   using ((select auth.uid()) = user_id);
 
-drop policy if exists "Users can create queued reel jobs" on public.remote_reel_jobs;
+drop policy if exists "Users can create queued reel jobs" on reel.remote_reel_jobs;
 create policy "Users can create queued reel jobs"
-  on public.remote_reel_jobs
+  on reel.remote_reel_jobs
   for insert
   to authenticated
   with check (
@@ -60,31 +68,31 @@ create policy "Users can create queued reel jobs"
     )
   );
 
-drop policy if exists "Users can delete finished reel jobs" on public.remote_reel_jobs;
+drop policy if exists "Users can delete finished reel jobs" on reel.remote_reel_jobs;
 create policy "Users can delete finished reel jobs"
-  on public.remote_reel_jobs
+  on reel.remote_reel_jobs
   for delete
   to authenticated
   using ((select auth.uid()) = user_id and status in ('completed', 'failed'));
 
-create or replace function public.enforce_remote_reel_job_quota()
+create or replace function reel.enforce_remote_reel_job_quota()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = pg_catalog, reel
 as $$
 begin
   perform pg_advisory_xact_lock(hashtextextended(new.user_id::text, 0));
   if (
     select count(*)
-    from public.remote_reel_jobs
+    from reel.remote_reel_jobs
     where user_id = new.user_id and status in ('queued', 'processing')
   ) >= 5 then
     raise exception '同時に生成待ちにできるリールは5本までです。';
   end if;
   if (
     select count(*)
-    from public.remote_reel_jobs
+    from reel.remote_reel_jobs
     where user_id = new.user_id and created_at >= now() - interval '24 hours'
   ) >= 50 then
     raise exception '24時間の生成上限に達しました。時間を置いてお試しください。';
@@ -93,17 +101,17 @@ begin
 end;
 $$;
 
-revoke all on function public.enforce_remote_reel_job_quota() from public;
-drop trigger if exists enforce_remote_reel_job_quota on public.remote_reel_jobs;
+revoke all on function reel.enforce_remote_reel_job_quota() from public, anon, authenticated;
+drop trigger if exists enforce_remote_reel_job_quota on reel.remote_reel_jobs;
 create trigger enforce_remote_reel_job_quota
-  before insert on public.remote_reel_jobs
-  for each row execute function public.enforce_remote_reel_job_quota();
+  before insert on reel.remote_reel_jobs
+  for each row execute function reel.enforce_remote_reel_job_quota();
 
-create or replace function public.claim_remote_reel_job(p_worker_id text)
-returns setof public.remote_reel_jobs
+create or replace function reel.claim_remote_reel_job(p_worker_id text)
+returns setof reel.remote_reel_jobs
 language plpgsql
 security definer
-set search_path = public
+set search_path = pg_catalog, reel
 as $$
 declare
   selected_id uuid;
@@ -112,7 +120,7 @@ begin
     raise exception 'worker id is required';
   end if;
 
-  update public.remote_reel_jobs
+  update reel.remote_reel_jobs
   set
     status = 'failed',
     error = 'Macワーカーとの接続が途切れました。もう一度生成してください。',
@@ -122,7 +130,7 @@ begin
     and worker_heartbeat_at < now() - interval '30 minutes';
 
   select id into selected_id
-  from public.remote_reel_jobs
+  from reel.remote_reel_jobs
   where status = 'queued'
   order by created_at asc
   for update skip locked
@@ -133,7 +141,7 @@ begin
   end if;
 
   return query
-  update public.remote_reel_jobs
+  update reel.remote_reel_jobs
   set
     status = 'processing',
     progress = 0.01,
@@ -146,10 +154,8 @@ begin
 end;
 $$;
 
-revoke all on function public.claim_remote_reel_job(text) from public;
-revoke all on function public.claim_remote_reel_job(text) from anon;
-revoke all on function public.claim_remote_reel_job(text) from authenticated;
-grant execute on function public.claim_remote_reel_job(text) to service_role;
+revoke all on function reel.claim_remote_reel_job(text) from public, anon, authenticated;
+grant execute on function reel.claim_remote_reel_job(text) to service_role;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (

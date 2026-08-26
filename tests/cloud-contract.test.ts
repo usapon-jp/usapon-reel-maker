@@ -46,10 +46,12 @@ describe('cloud reel contract', () => {
 
   it('ships RLS, private storage and a service-role-only atomic claim function', () => {
     const sql = readFileSync('supabase/migrations/202608260001_remote_reel_jobs.sql', 'utf8');
-    expect(sql).toContain('alter table public.remote_reel_jobs enable row level security');
+    expect(sql).toContain('create schema if not exists reel');
+    expect(sql).toContain('alter table reel.remote_reel_jobs enable row level security');
+    expect(sql).toContain('grant select, insert, delete on reel.remote_reel_jobs to authenticated');
     expect(sql).toContain("'reel-private'");
     expect(sql).toContain('for update skip locked');
-    expect(sql).toContain('grant execute on function public.claim_remote_reel_job(text) to service_role');
+    expect(sql).toContain('grant execute on function reel.claim_remote_reel_job(text) to service_role');
     expect(sql).toContain("(storage.foldername(name))[1] = (select auth.uid())::text");
     expect(sql).toContain("(storage.foldername(name))[2] = 'inputs'");
     expect(sql).toContain('enforce_remote_reel_job_quota');

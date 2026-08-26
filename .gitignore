@@ -6,6 +6,8 @@ test-results/
 playwright-report/
 .local-data/
 supabase/.temp/
+# 共有usapon-mainの他アプリmigrationは、照合時だけfetchするローカルコピー。
+supabase/migrations/2026082[1-5]*.sql
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal

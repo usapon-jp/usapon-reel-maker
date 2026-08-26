@@ -39,16 +39,19 @@ Macへのポート開放は不要です。Macが停止中でも依頼は「生�
 
 ### クラウド設定
 
-1. Supabaseに専用プロジェクトを作り、[`supabase/migrations/202608260001_remote_reel_jobs.sql`](./supabase/migrations/202608260001_remote_reel_jobs.sql) を適用します。
-2. [`.env.example`](./.env.example) を参考に、リポジトリ直下へ `.env.local` を作ります。
-3. Vercelには `NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` だけを設定します。
-4. Macだけに `SUPABASE_SERVICE_ROLE_KEY` を設定し、次を常時起動します。
+1. 共有本番Supabase（論理名 `usapon-main`）へ[`supabase/migrations/202608260001_remote_reel_jobs.sql`](./supabase/migrations/202608260001_remote_reel_jobs.sql) を適用します。リール用のテーブルとRPCは独立した `reel` スキーマへ作られ、既存の `public`／`morning` テーブルには触れません。
+2. SupabaseのData API設定で、既存の公開スキーマを残したまま `reel` を追加します。匿名ユーザーには権限を付与せず、RLSでログインユーザーごとに分離します。
+3. [`.env.example`](./.env.example) を参考に、リポジトリ直下へ `.env.local` を作ります。
+4. Vercelには `NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` だけを設定します。
+5. Macだけに `SUPABASE_SERVICE_ROLE_KEY` を設定し、次を常時起動します。
 
 ```bash
 npm run cloud:worker
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` はVercel、ブラウザ、GitHubへ絶対に登録しないでください。認証メールの本番URLはSupabase AuthのSite URL／Redirect URLsにも登録します。
+
+共有本番へ `db push` する前は、`supabase migration fetch --linked` で既存migration履歴をローカルに取得して照合します。取得される `20260821...`〜`20260825...` の他アプリ分はGitへ含めず、再適用・内容変更もしません。新しいアプリ用migrationは共有プロジェクト全体で重複しない日時名にします。
 
 ## 基本操作
 

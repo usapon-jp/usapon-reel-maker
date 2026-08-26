@@ -7,6 +7,7 @@
 - ルーターのポート開放、リバースプロキシ、トンネルサービスなどでインターネットへ直接公開しないでください。
 - 管理データ、素材、BGM、完成動画はGitへ追加しないでください。
 - スマホ版はSupabase Auth、所有者RLS、非公開Storage、ファイル形式／容量制限を必須とします。
+- 共有本番SupabaseではリールのテーブルとRPCを `reel` スキーマへ隔離し、ショップの `public` と朝会議の `morning` を変更しません。
 - `SUPABASE_SERVICE_ROLE_KEY` はMacワーカーだけに置き、`NEXT_PUBLIC_`、Vercel、GitHub、ブラウザへ渡さないでください。
 - Macワーカーは利用者ID配下の `inputs` だけを読み、ジョブ取得はservice role限定の原子的RPCで行います。
 - クラウド公開時はProxyが認証のないMacローカルAPIを遮断します。公開環境で `/api/bootstrap` が404になることを確認してください。

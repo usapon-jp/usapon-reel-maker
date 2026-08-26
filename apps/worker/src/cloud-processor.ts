@@ -185,7 +185,7 @@ export class CloudJobProcessor {
   private readonly localStorage: LocalBlobStorage;
 
   async processNext(): Promise<boolean> {
-    const {data, error} = await this.client.rpc('claim_remote_reel_job', {p_worker_id: this.workerId});
+    const {data, error} = await this.client.schema('reel').rpc('claim_remote_reel_job', {p_worker_id: this.workerId});
     if (error) throw new Error(`クラウドジョブを取得できません: ${error.message}`);
     const row = (data as RemoteJobRow[] | null)?.[0];
     if (!row) return false;
@@ -204,6 +204,7 @@ export class CloudJobProcessor {
 
   private async update(id: string, values: Record<string, unknown>): Promise<void> {
     const {error} = await this.client
+      .schema('reel')
       .from('remote_reel_jobs')
       .update({...values, updated_at: nowIso(), worker_heartbeat_at: nowIso()})
       .eq('id', id)

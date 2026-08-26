@@ -227,6 +227,7 @@ function CloudEditor({session}: {session: Session}) {
 
   const loadJobs = useCallback(async () => {
     const {data, error: queryError} = await client
+      .schema('reel')
       .from('remote_reel_jobs')
       .select('id,user_id,status,request,progress,output_object_path,thumbnail_object_path,error,created_at,completed_at')
       .order('created_at', {ascending: false})
@@ -348,7 +349,7 @@ function CloudEditor({session}: {session: Session}) {
         useWorkerDefaultBgm: !bgmRef && useDefaultBgm,
       });
       setUploadLabel('生成を予約しています');
-      const {error: insertError} = await client.from('remote_reel_jobs').insert({
+      const {error: insertError} = await client.schema('reel').from('remote_reel_jobs').insert({
         user_id: session.user.id,
         status: 'queued',
         request,
@@ -373,7 +374,7 @@ function CloudEditor({session}: {session: Session}) {
 
   const retry = async (job: CloudJob) => {
     setError(null);
-    const {error: insertError} = await client.from('remote_reel_jobs').insert({
+    const {error: insertError} = await client.schema('reel').from('remote_reel_jobs').insert({
       user_id: session.user.id,
       status: 'queued',
       request: job.request,
@@ -385,7 +386,7 @@ function CloudEditor({session}: {session: Session}) {
 
   const removeJob = async (job: CloudJob) => {
     if (!window.confirm(`「${job.request.title}」を履歴から削除しますか？`)) return;
-    const {error: deleteError} = await client.from('remote_reel_jobs').delete().eq('id', job.id);
+    const {error: deleteError} = await client.schema('reel').from('remote_reel_jobs').delete().eq('id', job.id);
     if (deleteError) {
       setError(`削除できません: ${deleteError.message}`);
       return;
