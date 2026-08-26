@@ -8,13 +8,16 @@
     "start": "next start -H 127.0.0.1"
   },
   "dependencies": {
+    "@next/env": "^16.3.3",
     "@remotion/player": "latest",
+    "@supabase/supabase-js": "^2.112.4",
     "@usapon-reel/core": "*",
     "@usapon-reel/local": "*",
     "@usapon-reel/renderer": "*",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "tus-js-client": "^4.3.1"
   },
   "devDependencies": {
     "@types/react": "latest",

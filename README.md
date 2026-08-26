@@ -1,6 +1,9 @@
 # うさぽん リールメーカー
 
-背景、透過PNG、テキスト、BGMを選ぶだけで、Instagram Reels向けの30秒縦動画を作るローカルWebアプリです。画像そのものを動かすため、キャラクターの絵柄を変えません。
+背景、透過PNG、テキスト、BGMを選ぶだけで、Instagram Reels向けの30秒縦動画を作るWebアプリです。画像そのものを動かすため、キャラクターの絵柄を変えません。
+
+- Macローカル版：素材管理、編集、プレビュー、動画生成を1台のMacで行います。
+- スマホ／iPad版：公開Web画面から素材を送り、Macワーカーが生成したMP4を端末で受け取ります。
 
 ## 起動
 
@@ -19,7 +22,33 @@ Chromeで `http://127.0.0.1:3000` を開きます。Web UIと動画生成ワー�
 USAPON_REEL_DATA_DIR=.local-data npm run dev
 ```
 
-このMVPはMac内で使うローカルアプリです。認証を持たないため、ポート開放やトンネルを使ってインターネットへ直接公開しないでください。詳しくは [SECURITY.md](./SECURITY.md) を参照してください。
+Macローカル版は認証を持たないため、ポート開放やトンネルを使って直接公開しないでください。公開するのはSupabase認証を使うスマホ版だけです。詳しくは [SECURITY.md](./SECURITY.md) を参照してください。
+
+## スマホ／iPad版
+
+クラウド設定を入れて公開すると、トップ画面がスマホ版へ切り替わります。
+
+1. メールのマジックリンクでログインします。
+2. 背景、透過PNG、テキスト、雰囲気、BGMを選びます。
+3. 素材をSupabaseの非公開Storageへ直接送信します。6MB超は再開可能アップロードを使います。
+4. 生成依頼はSupabaseのキューへ保存されます。
+5. Macワーカーが自分からキューを取得し、Remotionで生成します。
+6. 完成MP4とサムネイルを非公開Storageへ戻し、スマホから期限付きURLで開きます。
+
+Macへのポート開放は不要です。Macが停止中でも依頼は「生成待ち」として残ります。WebアプリはPWA対応で、iPhone／iPadではSafariの共有メニューからホーム画面へ追加できます。
+
+### クラウド設定
+
+1. Supabaseに専用プロジェクトを作り、[`supabase/migrations/202608260001_remote_reel_jobs.sql`](./supabase/migrations/202608260001_remote_reel_jobs.sql) を適用します。
+2. [`.env.example`](./.env.example) を参考に、リポジトリ直下へ `.env.local` を作ります。
+3. Vercelには `NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` だけを設定します。
+4. Macだけに `SUPABASE_SERVICE_ROLE_KEY` を設定し、次を常時起動します。
+
+```bash
+npm run cloud:worker
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` はVercel、ブラウザ、GitHubへ絶対に登録しないでください。認証メールの本番URLはSupabase AuthのSite URL／Redirect URLsにも登録します。
 
 ## 基本操作
 
@@ -36,15 +65,15 @@ BGMはMP3、M4A、AAC、WAVに対応します。登録時にBPM、ビート位�
 
 ## 設計
 
-- `apps/web`: Next.js UIとローカルAPI
-- `apps/worker`: 動画変換、音声解析、Remotion書き出しを行う単一ジョブワーカー
+- `apps/web`: Next.js UI、ローカルAPI、Supabase Auth／Storageを使うスマホUI
+- `apps/worker`: ローカル／クラウドキューから動画変換、音声解析、Remotion書き出しを行う単一ジョブワーカー
 - `packages/core`: バージョン付きデータ型、動きテンプレート、レイアウト、保存・生成インターフェース
 - `packages/local`: SQLiteとMac内ファイル保存のadapter
 - `packages/renderer`: プレビューとMP4で共有するRemotion Composition
 
 雰囲気テンプレートは、再利用可能な動きプリミティブと設定JSONの組み合わせです。初期4種類は読み取り専用で、複製後に画面から調整できます。新しい組み合わせの追加にはコード変更が不要です。
 
-保存先は `BlobStorage`、Repository、`RenderQueue`、`BGMProvider` の境界で分離しています。将来はUIや動画生成を変えずに、Supabase Database／Storage adapterを追加できます。
+保存先は `BlobStorage`、Repository、`RenderQueue`、`BGMProvider` の境界で分離しています。Macローカル版はSQLite、スマホ版はSupabase Database／Storageを利用します。
 
 ## 確認コマンド
 

@@ -243,11 +243,66 @@ export const RenderJobSchema = z.object({
   outputStorageKey: z.string().nullable(),
   thumbnailStorageKey: z.string().nullable(),
   error: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  completedAt: z.string().datetime().nullable(),
+  createdAt: z.string().datetime({offset: true}),
+  updatedAt: z.string().datetime({offset: true}),
+  completedAt: z.string().datetime({offset: true}).nullable(),
 });
 export type RenderJob = z.infer<typeof RenderJobSchema>;
+
+export const RemoteAssetRefSchema = z.object({
+  objectPath: z.string().min(1).max(500),
+  originalName: z.string().min(1).max(255),
+  mimeType: z.string().min(1).max(120),
+  size: z.number().int().nonnegative().max(1024 * 1024 * 1024),
+});
+export type RemoteAssetRef = z.infer<typeof RemoteAssetRefSchema>;
+
+export const RemoteOverlayRefSchema = RemoteAssetRefSchema.extend({
+  role: LayerRoleSchema,
+});
+export type RemoteOverlayRef = z.infer<typeof RemoteOverlayRefSchema>;
+
+export const RemoteReelRequestSchema = z.object({
+  schemaVersion: z.literal(1),
+  title: z.string().trim().min(1).max(100),
+  motionTemplateId: z.string().min(1).max(100),
+  globalStrength: z.number().min(0).max(2),
+  background: RemoteAssetRefSchema,
+  overlays: z.array(RemoteOverlayRefSchema).min(1).max(12),
+  texts: z.array(z.string().trim().max(160)).max(3),
+  bgm: RemoteAssetRefSchema.nullable(),
+  useWorkerDefaultBgm: z.boolean(),
+});
+export type RemoteReelRequestV1 = z.infer<typeof RemoteReelRequestSchema>;
+
+export function assertRemoteRequestOwnership(requestValue: unknown, userId: string): RemoteReelRequestV1 {
+  const request = RemoteReelRequestSchema.parse(requestValue);
+  const prefix = `${userId}/inputs/`;
+  const refs = [request.background, ...request.overlays, ...(request.bgm ? [request.bgm] : [])];
+  if (refs.some((ref) => !ref.objectPath.startsWith(prefix) || ref.objectPath.includes('..'))) {
+    throw new Error('素材の保存場所を確認できませんでした。');
+  }
+  return request;
+}
+
+export const RemoteReelJobStatusSchema = z.enum(['queued', 'processing', 'completed', 'failed']);
+export type RemoteReelJobStatus = z.infer<typeof RemoteReelJobStatusSchema>;
+
+export const RemoteReelJobSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  status: RemoteReelJobStatusSchema,
+  request: RemoteReelRequestSchema,
+  progress: z.number().min(0).max(1),
+  workerId: z.string().nullable(),
+  outputObjectPath: z.string().nullable(),
+  thumbnailObjectPath: z.string().nullable(),
+  error: z.string().nullable(),
+  createdAt: z.string().datetime({offset: true}),
+  updatedAt: z.string().datetime({offset: true}),
+  completedAt: z.string().datetime({offset: true}).nullable(),
+});
+export type RemoteReelJob = z.infer<typeof RemoteReelJobSchema>;
 
 export type ResolvedAsset = AssetRecord & {src: string};
 export type RenderableProject = {

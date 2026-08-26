@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --import tsx src/index.ts",
-    "start": "node --import tsx src/index.ts"
+    "dev": "node --env-file-if-exists=../../.env.local --import tsx src/index.ts",
+    "start": "node --env-file-if-exists=../../.env.local --import tsx src/index.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
     "@usapon-reel/core": "*",
     "@usapon-reel/local": "*",
     "@usapon-reel/renderer": "*",

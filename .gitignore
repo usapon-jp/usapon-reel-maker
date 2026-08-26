@@ -5,10 +5,13 @@ coverage/
 test-results/
 playwright-report/
 .local-data/
+supabase/.temp/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
 .DS_Store
-.env.local
+.env
+.env.*
+!.env.example
 npm-debug.log*
 *.tsbuildinfo

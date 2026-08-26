@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@11.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -14,6 +15,7 @@
     "dev": "concurrently -k -n web,worker -c cyan,magenta \"npm run dev -w @usapon-reel/web\" \"npm run dev -w @usapon-reel/worker\"",
     "dev:web": "npm run dev -w @usapon-reel/web",
     "dev:worker": "npm run dev -w @usapon-reel/worker",
+    "cloud:worker": "npm run start -w @usapon-reel/worker",
     "build": "npm run build -w @usapon-reel/web",
     "start": "concurrently -k -n web,worker -c cyan,magenta \"npm run start -w @usapon-reel/web\" \"npm run start -w @usapon-reel/worker\"",
     "typecheck": "tsc --noEmit",
