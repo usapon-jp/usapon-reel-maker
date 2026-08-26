@@ -14,6 +14,8 @@ supabase/migrations/2026082[1-5]*.sql
 .DS_Store
 .env
 .env.*
+.env*
 !.env.example
 npm-debug.log*
 *.tsbuildinfo
+.vercel/
