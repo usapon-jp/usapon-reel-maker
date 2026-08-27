@@ -9,6 +9,7 @@
 - スマホ版はSupabase Auth、所有者RLS、非公開Storage、ファイル形式／容量制限を必須とします。
 - 共有本番SupabaseではリールのテーブルとRPCを `reel` スキーマへ隔離し、ショップの `public` と朝会議の `morning` を変更しません。
 - `SUPABASE_SERVICE_ROLE_KEY` はMacワーカーだけに置き、`NEXT_PUBLIC_`、Vercel、GitHub、ブラウザへ渡さないでください。
+- 常駐ワーカーではservice role鍵を平文のLaunchAgent設定へ入れず、macOS Keychainから起動時に読み出してください。
 - Macワーカーは利用者ID配下の `inputs` だけを読み、ジョブ取得はservice role限定の原子的RPCで行います。
 - クラウド公開時はProxyが認証のないMacローカルAPIを遮断します。公開環境で `/api/bootstrap` が404になることを確認してください。
 - BGMや画像を利用・共有するときは、利用者自身が権利を確認してください。

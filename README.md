@@ -51,6 +51,8 @@ npm run cloud:worker
 
 `SUPABASE_SERVICE_ROLE_KEY` はVercel、ブラウザ、GitHubへ絶対に登録しないでください。認証メールの本番URLはSupabase AuthのSite URL／Redirect URLsにも登録します。
 
+本番Macで常時処理する場合は、秘密鍵をmacOS Keychainへ保存し、[`scripts/run-cloud-worker-macos.sh`](./scripts/run-cloud-worker-macos.sh) をLaunchAgentから起動します。LaunchAgentにはSupabase URL、npmの絶対パス、任意の既定BGMパスだけを設定し、秘密鍵そのものは書き込みません。
+
 共有本番へ `db push` する前は、`supabase migration fetch --linked` で既存migration履歴をローカルに取得して照合します。取得される `20260821...`〜`20260825...` の他アプリ分はGitへ含めず、再適用・内容変更もしません。新しいアプリ用migrationは共有プロジェクト全体で重複しない日時名にします。
 
 ## 基本操作
