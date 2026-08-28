@@ -10,6 +10,7 @@ import {
 } from '@usapon-reel/core';
 import {getSupabaseBrowserClient, isCloudConfigured} from '@/src/cloud/supabase';
 import {uploadCloudFile, validateCloudFile} from '@/src/cloud/upload';
+import {createSubmissionFingerprint} from '@/src/cloud/submission-fingerprint';
 
 const BUCKET = 'reel-private';
 
@@ -220,6 +221,7 @@ function CloudEditor({session}: {session: Session}) {
   const [error, setError] = useState<string | null>(null);
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const previousStatuses = useRef<Record<string, RemoteReelJobStatus>>({});
+  const submissionInFlight = useRef(false);
   const backgroundUrl = useObjectUrl(background);
   const overlayUrls = useMemo(() => overlays.map((file) => ({file, url: URL.createObjectURL(file)})), [overlays]);
 
@@ -312,10 +314,33 @@ function CloudEditor({session}: {session: Session}) {
       setError('透過PNGを1枚以上追加してください。');
       return;
     }
+    if (submissionInFlight.current) {
+      setError('同じ内容のリールをただいま生成中です。完成までお待ちください。');
+      return;
+    }
+    submissionInFlight.current = true;
     setBusy(true);
     setError(null);
     const uploadedPaths: string[] = [];
     try {
+      const submissionFingerprint = await createSubmissionFingerprint({
+        title,
+        motionTemplateId,
+        globalStrength: strength,
+        background,
+        overlays,
+        texts,
+        bgm,
+        useWorkerDefaultBgm: !bgm && useDefaultBgm,
+      });
+      const duplicate = jobs.some((job) =>
+        (job.status === 'queued' || job.status === 'processing')
+        && job.request.submissionFingerprint === submissionFingerprint,
+      );
+      if (duplicate) {
+        setError('同じ内容のリールをただいま生成中です。完成までお待ちください。');
+        return;
+      }
       const total = 1 + overlays.length + (bgm ? 1 : 0);
       let completed = 0;
       const upload = async (kind: 'background' | 'overlay' | 'audio', file: File, label: string) => {
@@ -339,6 +364,7 @@ function CloudEditor({session}: {session: Session}) {
       const bgmRef = bgm ? await upload('audio', bgm, 'BGMを送信しています') : null;
       const request = RemoteReelRequestSchema.parse({
         schemaVersion: 1,
+        submissionFingerprint,
         title,
         motionTemplateId,
         globalStrength: strength,
@@ -364,6 +390,7 @@ function CloudEditor({session}: {session: Session}) {
       if (uploadedPaths.length > 0) await client.storage.from(BUCKET).remove(uploadedPaths).catch(() => undefined);
       setError(value instanceof Error ? value.message : String(value));
     } finally {
+      submissionInFlight.current = false;
       setBusy(false);
       window.setTimeout(() => {
         setUploadLabel(null);

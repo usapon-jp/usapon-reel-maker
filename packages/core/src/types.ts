@@ -264,6 +264,7 @@ export type RemoteOverlayRef = z.infer<typeof RemoteOverlayRefSchema>;
 
 export const RemoteReelRequestSchema = z.object({
   schemaVersion: z.literal(1),
+  submissionFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   title: z.string().trim().min(1).max(100),
   motionTemplateId: z.string().min(1).max(100),
   globalStrength: z.number().min(0).max(2),
