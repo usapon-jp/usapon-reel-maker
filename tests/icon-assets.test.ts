@@ -39,4 +39,16 @@ describe('reel maker icons', () => {
     expect(source).toContain('/reel-piyo-icon-180.png');
     expect(source).toContain('/reel-piyo-icon-192.png');
   });
+
+  it('uses the same icon for in-app brand marks', () => {
+    const styles = readFileSync(resolve(import.meta.dirname, '../apps/web/app/globals.css'), 'utf8');
+    const brandFiles = [
+      resolve(import.meta.dirname, '../apps/web/src/components/reel-maker.tsx'),
+      resolve(import.meta.dirname, '../apps/web/src/components/cloud-reel-maker.tsx'),
+      resolve(import.meta.dirname, '../apps/web/src/components/motion-template-editor.tsx'),
+    ];
+    const brandSource = brandFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
+    expect(styles).toContain("url('/reel-piyo-icon-192.png')");
+    expect(brandSource).not.toMatch(/className="brand-mark[^>]*>🐰/);
+  });
 });

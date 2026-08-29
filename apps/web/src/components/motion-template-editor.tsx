@@ -43,7 +43,7 @@ const SAMPLE_SVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
 function Header() {
   return (
     <header className="topbar">
-      <Link href="/" className="brand"><span className="brand-mark">🐰</span><span>うさぽん リールメーカー</span></Link>
+      <Link href="/" className="brand"><span className="brand-mark" aria-hidden="true" /><span>うさぽん リールメーカー</span></Link>
       <nav className="nav-links"><Link className="nav-link" href="/">新しいリール</Link><Link className="nav-link active" href="/templates">雰囲気テンプレート</Link></nav>
     </header>
   );

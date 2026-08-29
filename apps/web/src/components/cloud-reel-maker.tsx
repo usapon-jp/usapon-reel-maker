@@ -98,7 +98,7 @@ function LoginPanel() {
   return (
     <main className="cloud-login-page">
       <section className="cloud-login-card panel">
-        <div className="brand-mark cloud-login-mark">🐰</div>
+        <div className="brand-mark cloud-login-mark" aria-hidden="true" />
         <div className="eyebrow">Usapon Reel Cloud</div>
         <h1>スマホから、リールを作ろう</h1>
         <p className="lead">素材を送ると、Macが30秒動画を作ります。完成後はこの端末で受け取れます。</p>
@@ -132,7 +132,7 @@ function CloudSetupPreview() {
   return (
     <main className="cloud-login-page">
       <section className="cloud-login-card panel cloud-setup-card">
-        <div className="brand-mark cloud-login-mark">🐰</div>
+        <div className="brand-mark cloud-login-mark" aria-hidden="true" />
         <div className="eyebrow">Cloud setup</div>
         <h1>スマホ版の画面は準備できています</h1>
         <p className="lead">Supabaseの接続設定と本番データベース反映後に、ログインして利用できるようになります。</p>
@@ -180,7 +180,7 @@ function CloudEditorDemo() {
   return (
     <div className="app-shell cloud-shell">
       <header className="topbar cloud-topbar">
-        <a className="brand" href="#demo-editor"><span className="brand-mark">🐰</span><span>うさぽん リールメーカー</span></a>
+        <a className="brand" href="#demo-editor"><span className="brand-mark" aria-hidden="true" /><span>うさぽん リールメーカー</span></a>
         <nav className="nav-links"><a className="nav-link active" href="#demo-editor">作る</a><a className="nav-link" href="#demo-recent">完成動画</a></nav>
       </header>
       <main className="page cloud-page" id="demo-editor">
@@ -440,7 +440,7 @@ function CloudEditor({session}: {session: Session}) {
   return (
     <div className="app-shell cloud-shell">
       <header className="topbar cloud-topbar">
-        <a className="brand" href="#cloud-editor"><span className="brand-mark">🐰</span><span>うさぽん リールメーカー</span></a>
+        <a className="brand" href="#cloud-editor"><span className="brand-mark" aria-hidden="true" /><span>うさぽん リールメーカー</span></a>
         <nav className="nav-links" aria-label="クラウド版メニュー">
           <a className="nav-link active" href="#cloud-editor">作る</a>
           <a className="nav-link" href="#cloud-recent">完成動画</a>

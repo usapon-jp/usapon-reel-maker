@@ -39,7 +39,7 @@ function AppHeader() {
   return (
     <header className="topbar">
       <Link href="/" className="brand">
-        <span className="brand-mark">🐰</span>
+        <span className="brand-mark" aria-hidden="true" />
         <span>うさぽん リールメーカー</span>
       </Link>
       <nav className="nav-links" aria-label="メインメニュー">
