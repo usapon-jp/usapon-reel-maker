@@ -253,7 +253,7 @@ function CloudEditor({session}: {session: Session}) {
     if (notificationEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       for (const job of nextJobs) {
         if (job.status === 'completed' && previousStatuses.current[job.id] && previousStatuses.current[job.id] !== 'completed') {
-          new Notification('リールが完成しました', {body: job.request.title, icon: '/icon.svg'});
+          new Notification('リールが完成しました', {body: job.request.title, icon: '/reel-piyo-icon-192.png'});
         }
       }
     }

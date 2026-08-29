@@ -7,7 +7,13 @@ export const metadata: Metadata = {
   description: '素材を入れて、30秒のInstagram Reels動画をかんたん作成',
   applicationName: 'うさぽん リールメーカー',
   manifest: '/manifest.webmanifest',
-  icons: {icon: '/icon.svg', apple: '/icon.svg'},
+  icons: {
+    icon: [
+      {url: '/reel-piyo-icon-32.png', sizes: '32x32', type: 'image/png'},
+      {url: '/reel-piyo-icon-192.png', sizes: '192x192', type: 'image/png'},
+    ],
+    apple: [{url: '/reel-piyo-icon-180.png', sizes: '180x180', type: 'image/png'}],
+  },
   appleWebApp: {capable: true, statusBarStyle: 'default', title: 'うさぽんリール'},
 };
 
